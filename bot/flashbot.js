@@ -1,26 +1,26 @@
-const { Wallet, BigNumber, ethers, providers } = require("ethers");
+const { ethers, JsonRpcProvider } = require("ethers");
 const { FlashbotsBundleProvider, FlashbotsBundleResolution } = require("@flashbots/ethers-provider-bundle")
-require("dotenv").config()
+require("dotenv").config({ path: '../.env' })
 
 /*
-We doing 2 transfers. Transfer from me to another user and again the same transaction 
-both of them into a bundle and sends it to flashbot, so that it is bypassing the mempool.
+  We are doing 2 transfers. Transfer from my 1st test account("0xfFD3d3C0f1a10A43eeFbEB440320D4D8d5139716") 
+  to my 2nd account("0xD34B89262A8B9da21745c085F61502AFD6144066") and again the same transaction. 
+  Combining these 2 txs into a bundle and send this bundle to flashbot(block builder), so that it is bypassing the public mempool.
 */
 
-
 // Setup provider for Sepolia
-const provider = new providers.JsonRpcProvider(
+const provider = new JsonRpcProvider(
     `https://sepolia.infura.io/v3/${process.env.INFURA_API_KEY}`
 )
 
-// Create a unique flashbot id(simply a wallet)
-// It is used to sign a bundles
-const signer = new Wallet(
+// Create a unique flashbot id(simply a wallet).
+// It is used to sign a bundles.
+const signer = new ethers.Wallet(
     process.env.PRIVATE_KEY,
     provider  
 )
 
-const start = async() => {
+const sendTx = async() => {
     // create a flashbots provider(connection to flashbots, that's how we'll communicate with it)
     const flashbotsProvider = await FlashbotsBundleProvider.create(
         provider,
@@ -29,9 +29,9 @@ const start = async() => {
     )
 
     // Setup required gas and block variables
-    const GWEI = BigNumber.from(10).pow(9)
-    const LEGACY_GAS_PRICE = GWEI.mul(12)
-    const PRIORITY_FEE = GWEI.mul(100)
+    const GWEI = BigInt("1000000000")
+    const LEGACY_GAS_PRICE = GWEI * 33n
+    const PRIORITY_FEE = GWEI * 100n
     const blockNumber = await provider.getBlockNumber()
     const block = await provider.getBlock(blockNumber)
     const maxBaseFeeInFutureBlock = 
@@ -44,11 +44,11 @@ const start = async() => {
             transaction: {
               to: "0xD34B89262A8B9da21745c085F61502AFD6144066",
               type: 2,
-              maxFeePerGas: PRIORITY_FEE.add(maxBaseFeeInFutureBlock),
+              maxFeePerGas: PRIORITY_FEE + maxBaseFeeInFutureBlock,
               maxPriorityFeePerGas: PRIORITY_FEE,
               data: "0x",
-              chainId: 5,
-              value: ethers.utils.parseEther('0.001')
+              chainId: 11155111,
+              value: ethers.parseEther('0.001')
             } 
         },
         {
@@ -57,10 +57,24 @@ const start = async() => {
                to: "0xD34B89262A8B9da21745c085F61502AFD6144066",
                gasPrice: LEGACY_GAS_PRICE,
                data: "0x",
-               value: ethers.utils.parseEther('0.001')
+               chainId: 11155111,
+               value: ethers.parseEther("0.001")
             }
         } 
-        
-        // Run a flashbot simulation, to make sure it works
     ])
+
+    // Run a flashbot simulation, to make sure it works
+    console.log(new Date())
+    console.log("Starting the simulation")
+    const simulation = await flashbotsProvider.simulate(signedTransactions, blockNumber + 1)
+    console.log(new Date())
+
+    // Check the result of the simulation
+    if(simulation.firstRevert) {
+        console.log(`simulation failed with error: ${simulation.firstRevert.error}`)
+    } else {
+        console.log(`Simulation success in block number: ${blockNumber}`)
+    }
 }
+
+sendTx()
