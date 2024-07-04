@@ -71,10 +71,35 @@ const sendTx = async() => {
 
     // Check the result of the simulation
     if(simulation.firstRevert) {
-        console.log(`simulation failed with error: ${simulation.firstRevert.error}`)
+        console.log(`Simulation failed with error: ${simulation.firstRevert.error}`)
     } else {
-        console.log(`Simulation success in block number: ${blockNumber}`)
+        console.log(`Simulation successfully completed in block number: ${blockNumber}`)
     }
+
+    // Send a signed bundle with txs to Flashbots Relay, 10 times. So that we make sure,
+    // and guarantee that our txs are included in the Flashbot generated block.
+    for (var i = 0; i < 10; i++) {
+        const submittedBundleTx = await flashbotsProvider.sendRawBundle(
+            signedTransactions, 
+            blockNumber + 1
+        )
+        console.log("Bundle was successfully submitted, processing ...")
+        const submittedBundleReceipt = await submittedBundleTx.wait()
+        console.log(`Wait response: ${FlashbotsBundleResolution[submittedBundleReceipt]}`)
+        if(submittedBundleReceipt == FlashbotsBundleResolution.BundleIncluded || waitResponse === FlashbotsBundleResolution.AccountNonceTooHigh) {
+            console.log("Bundle successfully included in block!")
+            process.exit(0)
+        } else {
+            console.log({
+                bundleStats: await flashbotsProvider.getBundleStats(
+                    simulation.bundleHash,
+                    blockNumber + 1
+                ),
+                userStats: await flashbotsProvider.getUserStats()
+            })
+        }
+    }
+    console.log("Bundles submitted!")
 }
 
 sendTx()
