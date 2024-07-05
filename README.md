@@ -13,11 +13,10 @@ Feel free to check more details in the [Flashbots documentation](https://docs.fl
 `$ npm install`
 
 ### 3. Create .env file and set up all global variables
-`
-INFURA_API_KEY=<your Infura api key or feel free to use your most preferred provider> <br />
-PRIVATE_KEY=<your account private key from Sepolia network or any other test network> <br />
-FLASHBOTS_SEPOLIA_URL=<feel free to use the needed Flashbots Url> <br />
-`
+
+`INFURA_API_KEY="your Infura api key or feel free to use your most preferred provider"`\
+`PRIVATE_KEY=your account private key from Sepolia network or any other test network`\
+`FLASHBOTS_SEPOLIA_URL=feel free to use the needed Flashbots Url`
 
 ### 4. Make sure your accounts in the testnet have enough Ether on the balance to run the script
 If you need test Ether, you can easily request it on [Chainlink Faucet](https://faucets.chain.link/)
@@ -42,20 +41,19 @@ Once all preconditions are done, you can run the script with `node flashbot.js`
 ### 2. Check the console:
 In the console you should see that the simulation passed successfully.
 And after this you will see information about successfull txs bundle 
-submission to the the Flashbots network and inclusion in the block.<br />
-Example below:<br />
+submission to the the Flashbots network and inclusion in the block.\
+Example below:\
 
-`Simulation successfully completed in block number: <some block number> <br />
-Bundle was successfully submitted, processing ... <br />
-Wait response: BundleIncluded <br />
-Bundle successfully included in block! <br />
-`
+`Simulation successfully completed in block number: <some block number>`\
+`Bundle was successfully submitted, processing ...`\
+`Wait response: BundleIncluded`\
+`Bundle successfully included in block!`
 
 ## Checking the results
 ### 1. Verify your metamask account balance:
 Balance in the 1st account, from which you initiate a tx should be decreased
 for the amount from 2 txs in the `signedTransactions` object. In my example 
 this amount is 0.002 ETH. And in the 2nd account the balance should be increased  
-for the amount from 2 txs.<br />
+for the amount from 2 txs.\
 If you see this result, then congratulations. The flashbot is working as expected,
 and you successfully sent tx directly to the miner omitting the public mempool.
