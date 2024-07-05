@@ -23,7 +23,7 @@ If you need test Ether, you can easily request it on [Chainlink Faucet](https://
 
 ### 5. Change the target account in the transaction description
 In the `signedTransactions` change the `to` value to your account in both txs:
-```json
+```
     {
         signer: signer,
         transaction: {
@@ -42,7 +42,7 @@ Once all preconditions are done, you can run the script with `node flashbot.js`
 In the console you should see that the simulation passed successfully.
 And after this you will see information about successfull txs bundle 
 submission to the the Flashbots network and inclusion in the block.\
-Example below:\
+Example below:
 
 `Simulation successfully completed in block number: <some block number>`\
 `Bundle was successfully submitted, processing ...`\
