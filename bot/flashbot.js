@@ -1,6 +1,6 @@
 const { ethers, JsonRpcProvider } = require("ethers");
 const { FlashbotsBundleProvider, FlashbotsBundleResolution } = require("@flashbots/ethers-provider-bundle")
-require("dotenv").config({ path: '../.env' })
+require("dotenv").config()
 
 /*
   We are doing 2 transfers. Transfer from my 1st test account("0xfFD3d3C0f1a10A43eeFbEB440320D4D8d5139716") 
@@ -20,6 +20,7 @@ const signer = new ethers.Wallet(
     provider  
 )
 
+console.log(signer)
 const sendTx = async() => {
     // create a flashbots provider(connection to flashbots, that's how we'll communicate with it)
     const flashbotsProvider = await FlashbotsBundleProvider.create(
